@@ -83,5 +83,75 @@ public class ReadDragon implements RequestHandler<
         
         return results.toString();
     }
+    
+    private static String getBucket() {
+        GetParameterRequest parameterRequest = GetParameterRequest
+                .builder()
+                .name("dragon_data_bucket_name")
+                .withDecryption(false)
+                .build();
+
+        GetParameterResponse parameterResponse = ssmClient.getParameter(parameterRequest);
+        return parameterResponse.parameter().value();
+    }
+
+    private static String getKey() {
+        GetParameterRequest parameterRequest = GetParameterRequest
+                .builder()
+                .name("dragon_data_file_name")
+                .withDecryption(false)
+                .build();
+
+        GetParameterResponse parameterResponse = ssmClient.getParameter(parameterRequest);
+        return parameterResponse.parameter().value();
+    }
+    
+    private static String getQuery(Map<String, String> queryParams) {
+        if (queryParams != null) {
+            System.out.println("Query contains params");
+            
+            if (queryParams.containsKey("family")) {
+                System.out.println("Query for attribute \"family\"");
+                return "select * from S3Object[*][*] s where s.family = '"
+                    + queryParams.get("family") + "'";
+            }
+            
+            else if (queryParams.containsKey("dragonName")) {
+                return "select * from S3Object[*][*] s where s.dragon_name_str = '"
+                    + queryParams.get("dragonName") + "'";
+            }
+        }
+        
+        return "select * from s3object[*][*] s";
+    }
+    
+    private static CompletableFuture<Void> queryS3(
+        S3AsyncClient s3,
+        String bucket,
+        String key,
+        String query,
+        SelectObjectContentResponseHandler handler
+    ) {
+        InputSerialization inputSerialization = InputSerialization
+            .builder()
+            .json(JSONInput.builder.type("Document").build())
+            .compressionType(CompressionType.NONE)
+            .build();
+        
+        OutputSerialization outputSerialization = OutputSerialization
+            .json(JSONOutput.builder().build())
+            .build();
+            
+        SelectObjectContentRequest request = SelectObjectContentRequest.builder()
+            .bucket(bucketName)
+            .key(key)
+            .expression(query)
+            .expressionType(ExpressionType.SQL)
+            .inputSerialization(inputSerialization)
+            .outputSerialization(outputSerialization)
+            .build();
+            
+        return s3.selectObjectContent(request, handler);
+    }
 
 }
