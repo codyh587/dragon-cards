@@ -117,7 +117,7 @@ public class ReadDragon implements RequestHandler<
             }
 
             else if (queryParams.containsKey("dragonName")) {
-                return "select * from S3Object[*][*] s where s.dragon_name_str = '"
+                return "select * from S3Object[*][*] s where s.name = '"
                     + queryParams.get("dragonName") + "'";
             }
         }
