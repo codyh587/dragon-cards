@@ -56,7 +56,7 @@ public class CreateDragon implements RequestHandler<Dragon, String> {
         GetParameterRequest parameterRequest = GetParameterRequest
                 .builder()
                 .name("dragon_data_bucket_name")
-                .withDecrypiton(false)
+                .withDecryption(false)
                 .build();
 
         GetParameterResponse parameterResponse = ssmClient.getParameter(parameterRequest);
@@ -67,7 +67,7 @@ public class CreateDragon implements RequestHandler<Dragon, String> {
         GetParameterRequest parameterRequest = GetParameterRequest
                 .builder()
                 .name("dragon_data_file_name")
-                .withDecrypiton(false)
+                .withDecryption(false)
                 .build();
 
         GetParameterResponse parameterResponse = ssmClient.getParameter(parameterRequest);
@@ -75,7 +75,7 @@ public class CreateDragon implements RequestHandler<Dragon, String> {
     }
 
     private String textInputStreamToString(InputStream inputStream) {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(object));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         String line = null;
         String inputStreamString = "";
 
@@ -98,13 +98,14 @@ public class CreateDragon implements RequestHandler<Dragon, String> {
         );
     }
     
-    private static void uploadDragonData(String bucket, String key, List<Dragon> dragonData) {
+    private static void uploadDragonData(String bucket, String key, List<Dragon> dragonDataList) {
         PutObjectRequest objectRequest = PutObjectRequest
             .builder()
             .bucket(bucket)
             .key(key)
             .build();
             
-        s3Client.putObject(objectRequest, RequestBody.fromString(gson.toJson(dragons)));
+        s3Client.putObject(objectRequest, RequestBody.fromString(gson.toJson(dragonDataList)));
     }
+
 }
