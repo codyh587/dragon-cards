@@ -37,10 +37,10 @@ public class ReadDragon implements RequestHandler<
     APIGatewayProxyRequestEvent,
     APIGatewayProxyResponseEvent
 > {
-    
+
     private static final SsmClient ssmClient = SsmClient.builder().build();
     private static final S3AsyncClient s3 = S3AsyncClient.builder().build();
-    
+
     @Override
     public APIGatewayProxyResponseEvent handleRequest(
         APIGatewayProxyRequestEvent input,
@@ -57,7 +57,7 @@ public class ReadDragon implements RequestHandler<
         String query = getQuery(queryParams);
         JsonArray results = new JsonArray();
         TestHandler testHandler = new TestHandler();
-        
+
         CompletableFuture<Void> selection = queryS3(
             s3,
             bucket,
@@ -65,9 +65,9 @@ public class ReadDragon implements RequestHandler<
             query,
             testHandler
         );
-        
+
         selection.join();
-        
+
         for (SelectObjectContentEventStream events : testHandler.events) {
             if (events instanceof DefaultRecords) {
                 DefaultRecords defaultRecords = (DefaultRecords) events;
@@ -80,10 +80,10 @@ public class ReadDragon implements RequestHandler<
                 scanner.close();
             }
         }
-        
+
         return results.toString();
     }
-    
+
     private static String getBucket() {
         GetParameterRequest parameterRequest = GetParameterRequest
                 .builder()
@@ -105,26 +105,26 @@ public class ReadDragon implements RequestHandler<
         GetParameterResponse parameterResponse = ssmClient.getParameter(parameterRequest);
         return parameterResponse.parameter().value();
     }
-    
+
     private static String getQuery(Map<String, String> queryParams) {
         if (queryParams != null) {
             System.out.println("Query contains params");
-            
+
             if (queryParams.containsKey("family")) {
                 System.out.println("Query for attribute \"family\"");
                 return "select * from S3Object[*][*] s where s.family = '"
                     + queryParams.get("family") + "'";
             }
-            
+
             else if (queryParams.containsKey("dragonName")) {
                 return "select * from S3Object[*][*] s where s.dragon_name_str = '"
                     + queryParams.get("dragonName") + "'";
             }
         }
-        
+
         return "select * from s3object[*][*] s";
     }
-    
+
     private static CompletableFuture<Void> queryS3(
         S3AsyncClient s3,
         String bucket,
@@ -137,12 +137,12 @@ public class ReadDragon implements RequestHandler<
             .json(JSONInput.builder().type("Document").build())
             .compressionType(CompressionType.NONE)
             .build();
-        
+
         OutputSerialization outputSerialization = OutputSerialization
             .builder()
             .json(JSONOutput.builder().build())
             .build();
-            
+
         SelectObjectContentRequest request = SelectObjectContentRequest.builder()
             .bucket(bucket)
             .key(key)
@@ -151,36 +151,36 @@ public class ReadDragon implements RequestHandler<
             .inputSerialization(inputSerialization)
             .outputSerialization(outputSerialization)
             .build();
-            
+
         return s3.selectObjectContent(request, handler);
     }
-    
+
     private static APIGatewayProxyResponseEvent generateResponse(String dragonData) {
         APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
         Map<String, String> headers = new HashMap<String, String>();
-        
+
         headers.put("access-control-allow-origin", "*");
-        
+
         response.setStatusCode(200);
         response.setBody(dragonData);
         response.setHeaders(headers);
         return response;
     }
-    
+
     private static class TestHandler implements SelectObjectContentResponseHandler {
         private List<SelectObjectContentEventStream> events = new ArrayList<>();
-        
+
         @Override
         public void onEventStream(SdkPublisher<SelectObjectContentEventStream> publisher) {
             publisher.subscribe(events::add);
         }
-        
+
         @Override
         public void responseReceived(SelectObjectContentResponse response) {}
-        
+
         @Override
         public void exceptionOccurred(Throwable throwable) {}
-        
+
         @Override
         public void complete() {}
     }
