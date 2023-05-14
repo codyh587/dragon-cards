@@ -1,0 +1,87 @@
+package app;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.concurrent.CompletableFuture;
+
+import software.amazon.awssdk.core.async.SdkPublisher;
+import software.amazon.awssdk.services.s3.S3AsyncClient;
+import software.amazon.awssdk.services.s3.model.CompressionType;
+import software.amazon.awssdk.services.s3.model.ExpressionType;
+import software.amazon.awssdk.services.s3.model.InputSerialization;
+import software.amazon.awssdk.services.s3.model.JSONInput;
+import software.amazon.awssdk.services.s3.model.JSONOutput;
+import software.amazon.awssdk.services.s3.model.OutputSerialization;
+import software.amazon.awssdk.services.s3.model.SelectObjectContentEventStream;
+import software.amazon.awssdk.services.s3.model.SelectObjectContentRequest;
+import software.amazon.awssdk.services.s3.model.SelectObjectContentResponse;
+import software.amazon.awssdk.services.s3.model.SelectObjectContentResponseHandler;
+import software.amazon.awssdk.services.s3.model.selectobjectcontenteventstream.DefaultRecords;
+import software.amazon.awssdk.services.ssm.SsmClient;
+import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
+import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
+
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+
+public class ReadDragon implements RequestHandler<
+    APIGatewayProxyRequestEvent,
+    APIGatewayProxyResponseEvent
+> {
+    
+    private static final SsmClient ssmClient = SsmClient.builder().build();
+    private static final S3AsyncClient s3 = S3AsyncClient.builder().build();
+    
+    @Override
+    public APIGatewayProxyResponseEvent handleRequest(
+        APIGatewayProxyRequestEvent input,
+        Context context
+    ) {
+        String dragonData = readDragonData(input);
+        return generateResponse(dragonData)
+    }
+
+    protected static String readDragonData(APIGatewayProxyRequestEvent request) {
+        Map<String, String> queryParams = request.getQueryStringParameters();
+        String bucket = getBucket();
+        String key = getKey();
+        String query = getQuery(queryParams);
+        JsonArray results = new JsonArray();
+        TestHandler testHandler = new TestHandler();
+        
+        CompletableFuture<Void> selection = queryS3(
+            s3,
+            bucket,
+            key,
+            query,
+            testHandler
+        );
+        
+        selection.join();
+        
+        for (SelectObjectContentEventStream events : testHandler.receivedEvents) {
+            if (events instanceof DefaultRecords) {
+                DefaultRecords defaultRecords = (DefaultRecords) events;
+                String payload = defaultRecords.payload().asUtf8String();
+                Scanner scanner = new Scanner(payload);
+                while (scanner.hasNextLine()) {
+                    JsonElement element = JsonParser.parseString(scanner.nextLine());
+                    results.add(element);
+                }
+                scanner.close()
+            }
+        }
+        
+        return results.toString();
+    }
+
+}

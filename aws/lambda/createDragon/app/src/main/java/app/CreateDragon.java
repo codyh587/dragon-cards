@@ -26,11 +26,11 @@ import com.google.gson.reflect.TypeToken;
 import app.Dragon;
 
 public class CreateDragon implements RequestHandler<Dragon, String> {
-    
+
     private static final SsmClient ssmClient = SsmClient.builder().build();
     private static final S3Client s3Client = S3Client.builder().build();
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    
+
     @Override
     public String handleRequest(Dragon input, Context context) {
         createDragon(input);
@@ -90,21 +90,25 @@ public class CreateDragon implements RequestHandler<Dragon, String> {
 
         return inputStreamString;
     }
-    
+
     private List<Dragon> stringToList(String string) {
         return gson.fromJson(
             string,
             new TypeToken<List<Dragon>>() {}.getType()
         );
     }
-    
-    private static void uploadDragonData(String bucket, String key, List<Dragon> dragonDataList) {
+
+    private static void uploadDragonData(
+        String bucket,
+        String key,
+        List<Dragon> dragonDataList
+    ) {
         PutObjectRequest objectRequest = PutObjectRequest
             .builder()
             .bucket(bucket)
             .key(key)
             .build();
-            
+
         s3Client.putObject(objectRequest, RequestBody.fromString(gson.toJson(dragonDataList)));
     }
 
