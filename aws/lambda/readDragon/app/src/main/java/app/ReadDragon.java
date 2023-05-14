@@ -47,7 +47,7 @@ public class ReadDragon implements RequestHandler<
         Context context
     ) {
         String dragonData = readDragonData(input);
-        return generateResponse(dragonData)
+        return generateResponse(dragonData);
     }
 
     protected static String readDragonData(APIGatewayProxyRequestEvent request) {
@@ -68,7 +68,7 @@ public class ReadDragon implements RequestHandler<
         
         selection.join();
         
-        for (SelectObjectContentEventStream events : testHandler.receivedEvents) {
+        for (SelectObjectContentEventStream events : testHandler.events) {
             if (events instanceof DefaultRecords) {
                 DefaultRecords defaultRecords = (DefaultRecords) events;
                 String payload = defaultRecords.payload().asUtf8String();
@@ -77,7 +77,7 @@ public class ReadDragon implements RequestHandler<
                     JsonElement element = JsonParser.parseString(scanner.nextLine());
                     results.add(element);
                 }
-                scanner.close()
+                scanner.close();
             }
         }
         
@@ -134,16 +134,17 @@ public class ReadDragon implements RequestHandler<
     ) {
         InputSerialization inputSerialization = InputSerialization
             .builder()
-            .json(JSONInput.builder.type("Document").build())
+            .json(JSONInput.builder().type("Document").build())
             .compressionType(CompressionType.NONE)
             .build();
         
         OutputSerialization outputSerialization = OutputSerialization
+            .builder()
             .json(JSONOutput.builder().build())
             .build();
             
         SelectObjectContentRequest request = SelectObjectContentRequest.builder()
-            .bucket(bucketName)
+            .bucket(bucket)
             .key(key)
             .expression(query)
             .expressionType(ExpressionType.SQL)
@@ -161,7 +162,7 @@ public class ReadDragon implements RequestHandler<
         headers.put("access-control-allow-origin", "*");
         
         response.setStatusCode(200);
-        response.setBody(dragons);
+        response.setBody(dragonData);
         response.setHeaders(headers);
         return response;
     }
@@ -171,14 +172,14 @@ public class ReadDragon implements RequestHandler<
         
         @Override
         public void onEventStream(SdkPublisher<SelectObjectContentEventStream> publisher) {
-            publisher.subscribe(receivedEvents::add);
+            publisher.subscribe(events::add);
         }
         
         @Override
         public void responseReceived(SelectObjectContentResponse response) {}
         
         @Override
-        public void exceptionOccured(Throwable throwable) {}
+        public void exceptionOccurred(Throwable throwable) {}
         
         @Override
         public void complete() {}
