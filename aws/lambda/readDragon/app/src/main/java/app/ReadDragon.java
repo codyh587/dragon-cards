@@ -166,6 +166,22 @@ public class ReadDragon implements RequestHandler<
         return response;
     }
     
-    
+    private static class TestHandler implements SelectObjectContentResponseHandler {
+        private List<SelectObjectContentEventStream> events = new ArrayList<>();
+        
+        @Override
+        public void onEventStream(SdkPublisher<SelectObjectContentEventStream> publisher) {
+            publisher.subscribe(receivedEvents::add);
+        }
+        
+        @Override
+        public void responseReceived(SelectObjectContentResponse response) {}
+        
+        @Override
+        public void exceptionOccured(Throwable throwable) {}
+        
+        @Override
+        public void complete() {}
+    }
 
 }
