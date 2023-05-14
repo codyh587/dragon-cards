@@ -13,4 +13,4 @@ plugins {
 }
 
 rootProject.name = 'createDragon'
-include('lib')
+include('app')
