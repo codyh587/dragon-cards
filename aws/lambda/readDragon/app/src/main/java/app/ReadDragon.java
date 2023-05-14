@@ -153,5 +153,19 @@ public class ReadDragon implements RequestHandler<
             
         return s3.selectObjectContent(request, handler);
     }
+    
+    private static APIGatewayProxyResponseEvent generateResponse(String dragonData) {
+        APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
+        Map<String, String> headers = new HashMap<String, String>();
+        
+        headers.put("access-control-allow-origin", "*");
+        
+        response.setStatusCode(200);
+        response.setBody(dragons);
+        response.setHeaders(headers);
+        return response;
+    }
+    
+    
 
 }
