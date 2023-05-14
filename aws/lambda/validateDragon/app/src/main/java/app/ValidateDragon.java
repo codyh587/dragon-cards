@@ -33,7 +33,7 @@ public class ValidateDragon implements RequestHandler<Map<String, String>, Strin
     
     @Override
     public String handleRequest(Map<String, String> input, Context context) {
-        readDragonnData(input);
+        readDragonData(input);
         return "Dragon validated";
     }
     
@@ -95,7 +95,7 @@ public class ValidateDragon implements RequestHandler<Map<String, String>, Strin
     
     private static String getQuery(Map<String, String> request) {
         return "select * from S3Object[*][*] s where s.name = '" 
-            + event.get("dragonName") + "'";
+            + request.get("dragonName") + "'";
     }
     
     private static CompletableFuture<Void> queryS3(
