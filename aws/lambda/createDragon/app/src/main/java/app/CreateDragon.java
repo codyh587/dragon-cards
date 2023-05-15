@@ -23,8 +23,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
-import app.Dragon;
-
 public class CreateDragon implements RequestHandler<Dragon, String> {
 
     private static final SsmClient ssmClient = SsmClient.builder().build();
@@ -39,11 +37,12 @@ public class CreateDragon implements RequestHandler<Dragon, String> {
 
     public void createDragon(Dragon newDragon) {
         ResponseInputStream<GetObjectResponse> object = s3Client.getObject(
-                GetObjectRequest
-                        .builder()
-                        .bucket(getBucket())
-                        .key(getKey())
-                        .build());
+            GetObjectRequest
+                    .builder()
+                    .bucket(getBucket())
+                    .key(getKey())
+                    .build()
+        );
 
         String dragonDataString = textInputStreamToString(object);
         List<Dragon> dragonDataList = stringToList(dragonDataString);
@@ -80,8 +79,7 @@ public class CreateDragon implements RequestHandler<Dragon, String> {
         String inputStreamString = "";
 
         try {
-            line = reader.readLine();
-            while (line != null) {
+            while ((line = reader.readLine()) != null) {
                 inputStreamString += line;
             }
         } catch (IOException err) {
@@ -109,7 +107,10 @@ public class CreateDragon implements RequestHandler<Dragon, String> {
             .key(key)
             .build();
 
-        s3Client.putObject(objectRequest, RequestBody.fromString(gson.toJson(dragonDataList)));
+        s3Client.putObject(
+            objectRequest,
+            RequestBody.fromString(gson.toJson(dragonDataList))
+        );
     }
 
 }

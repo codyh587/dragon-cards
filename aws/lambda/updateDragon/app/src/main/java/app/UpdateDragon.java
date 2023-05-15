@@ -26,7 +26,7 @@ import com.google.gson.reflect.TypeToken;
 
 import app.Dragon;
 
-public class DeleteDragon implements RequestHandler<Map<String, String>, String> {
+public class UpdateDragon implements RequestHandler<Map<String, String>, String> {
 
     private static final SsmClient ssmClient = SsmClient.builder().build();
     private static final S3Client s3Client = S3Client.builder().build();
@@ -34,11 +34,11 @@ public class DeleteDragon implements RequestHandler<Map<String, String>, String>
 
     @Override
     public String handleRequest(Map<String, String> input, Context context) {
-        deleteDragon(input);
-        return "Dragon deleted";
+        updateDragon(input);
+        return "Dragon updated";
     }
 
-    public void deleteDragon(Map<String, String> request) {
+    public void updateDragon(Map<String, String> request) {
         ResponseInputStream<GetObjectResponse> object = s3Client.getObject(
                 GetObjectRequest
                         .builder()
@@ -48,19 +48,46 @@ public class DeleteDragon implements RequestHandler<Map<String, String>, String>
 
         String dragonDataString = textInputStreamToString(object);
         List<Dragon> dragonDataList = stringToList(dragonDataString);
-        String dragonName = request.get("name");
-        boolean deleted = false;
+        boolean updated = false;
 
-        for(int i = dragonDataList.size() - 1; i >= 0; --i) {
-            if(dragonDataList.get(i).getName().equals(dragonName)) {
-                dragonDataList.remove(i);
-                deleted = true;
+        String oldName = request.get("oldName");
+        String description = request.get("description");
+        String name = request.get("name");
+        String family = request.get("family");
+        String spottedCity = request.get("spottedCity");
+        String spottedNeighborhood = request.get("spottedNeighborhood");
+        String spottedState = request.get("spottedState");
+
+        for(Dragon dragon : dragonDataList) {
+            if(dragon.getName().equals(oldName)) {
+
+                if (!description.equals("")) {
+                    dragon.setDescription(description);
+                }
+                if (!name.equals("")) {
+                    dragon.setName(name);
+                }
+                if (!family.equals("")) {
+                    dragon.setFamily(family);
+                }
+                if (!spottedCity.equals("")) {
+                    dragon.setSpottedCity(spottedCity);
+                }
+                if (!spottedNeighborhood.equals("")) {
+                    dragon.setSpottedNeighborhood(spottedNeighborhood);
+                }
+                if (!spottedState.equals("")) {
+                    dragon.setSpottedState(spottedState);
+                }
+
+                updated = true;
                 break;
+
             }
         }
 
-        if (!deleted) {
-            throw new DragonDeletionException(
+        if (!updated) {
+            throw new DragonUpdateException(
                 "Dragon not found",
                 new RuntimeException()
             );

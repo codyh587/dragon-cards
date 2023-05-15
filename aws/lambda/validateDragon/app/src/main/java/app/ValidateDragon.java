@@ -27,22 +27,22 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 
 public class ValidateDragon implements RequestHandler<Map<String, String>, String> {
-    
+
     private static final SsmClient ssmClient = SsmClient.builder().build();
     private static final S3AsyncClient s3 = S3AsyncClient.builder().build();
-    
+
     @Override
     public String handleRequest(Map<String, String> input, Context context) {
         readDragonData(input);
         return "Dragon validated";
     }
-    
+
     protected static void readDragonData(Map<String, String> request) {
         String bucket = getBucket();
         String key = getKey();
         String query = getQuery(request);
         TestHandler testHandler = new TestHandler();
-        
+
         CompletableFuture<Void> selection = queryS3(
             s3,
             bucket,
@@ -50,27 +50,26 @@ public class ValidateDragon implements RequestHandler<Map<String, String>, Strin
             query,
             testHandler
         );
-        
+
         selection.join();
-        
+
         for (SelectObjectContentEventStream events : testHandler.events) {
             if (events instanceof DefaultRecords) {
-                DefaultRecords defaultRecords =(DefaultRecords) events;
+                DefaultRecords defaultRecords = (DefaultRecords) events;
                 String payload = defaultRecords
                     .payload()
                     .asString(StandardCharsets.UTF_8);
-                
+
                 if (payload != null && !(payload.equals(""))) {
                     throw new DragonValidationException(
                         "Duplicate dragon found",
                         new RuntimeException()
                     );
                 }
-                
             }
         }
     }
-    
+
     private static String getBucket() {
         GetParameterRequest parameterRequest = GetParameterRequest
                 .builder()
@@ -92,12 +91,12 @@ public class ValidateDragon implements RequestHandler<Map<String, String>, Strin
         GetParameterResponse parameterResponse = ssmClient.getParameter(parameterRequest);
         return parameterResponse.parameter().value();
     }
-    
+
     private static String getQuery(Map<String, String> request) {
-        return "select * from S3Object[*][*] s where s.name = '" 
-            + request.get("dragonName") + "'";
+        return "select * from S3Object[*][*] s where s.name = '"
+            + request.get("name") + "'";
     }
-    
+
     private static CompletableFuture<Void> queryS3(
         S3AsyncClient s3,
         String bucket,
@@ -127,7 +126,7 @@ public class ValidateDragon implements RequestHandler<Map<String, String>, Strin
 
         return s3.selectObjectContent(request, handler);
     }
-    
+
     private static class TestHandler implements SelectObjectContentResponseHandler {
         private List<SelectObjectContentEventStream> events = new ArrayList<>();
 
@@ -145,5 +144,5 @@ public class ValidateDragon implements RequestHandler<Map<String, String>, Strin
         @Override
         public void complete() {}
     }
-    
+
 }
