@@ -1,0 +1,267 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "version" : "<VERSION>",
+    "title" : "DragonsApp"
+  },
+  "host" : "<HOST-URL>",
+  "basePath" : "<STAGE-NAME>",
+  "schemes" : [ "https" ],
+  "paths" : {
+    "/dragons" : {
+      "get" : {
+        "produces" : [ "application/json" ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "schema" : {
+              "$ref" : "#/definitions/Empty"
+            },
+            "headers" : {
+              "Access-Control-Allow-Origin" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-integration" : {
+          "type" : "aws_proxy",
+          "httpMethod" : "POST",
+          "uri" : "arn:aws:apigateway:<REGION>:lambda:path/2015-03-31/functions/<ReadDragon-LAMBDA-ARN>/invocations",
+          "responses" : {
+            "default" : {
+              "statusCode" : "200",
+              "responseParameters" : {
+                "method.response.header.Access-Control-Allow-Origin" : "'*'"
+              }
+            }
+          },
+          "passthroughBehavior" : "when_no_match",
+          "contentHandling" : "CONVERT_TO_TEXT"
+        }
+      },
+      "post" : {
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "dragon",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/dragon"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "schema" : {
+              "$ref" : "#/definitions/Empty"
+            },
+            "headers" : {
+              "Access-Control-Allow-Origin" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-request-validator" : "Validate body",
+        "x-amazon-apigateway-integration" : {
+          "type" : "aws",
+          "credentials" : "<IAM-ROLE-ARN>",
+          "httpMethod" : "POST",
+          "uri" : "arn:aws:apigateway:<REGION>:states:action/StartExecution",
+          "responses" : {
+            "default" : {
+              "statusCode" : "200",
+              "responseParameters" : {
+                "method.response.header.Access-Control-Allow-Origin" : "'*'"
+              }
+            }
+          },
+          "requestTemplates" : {
+            "application/json" : "#set($data = $input.path('$'))\r\n\r\n#set($inputValues = \"{\r\n  \"\"name\"\" : \"\"$data.name\"\",\r\n  \"\"description\"\" : \"\"$data.description\"\",\r\n  \"\"family\"\" : \"\"$data.family\"\",\r\n  \"\"spottedCity\"\" : \"\"$data.spottedCity\"\",\r\n  \"\"spottedState\"\" : \"\"$data.spottedState\"\",\r\n  \"\"spottedNeighborhood\"\" : \"\"$data.spottedNeighborhood\"\"\r\n}\")\r\n\r\n{\r\n    \"input\": \"$util.escapeJavaScript($inputValues).replaceAll(\"\\\\'\", \"'\")\",\r\n    \"stateMachineArn\": \"<DragonsPostStateMachine-STEP-FUNCTION-ARN>\"\r\n}"
+          },
+          "passthroughBehavior" : "when_no_templates"
+        }
+      },
+      "delete" : {
+        "produces" : [ "application/json" ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "schema" : {
+              "$ref" : "#/definitions/Empty"
+            },
+            "headers" : {
+              "Access-Control-Allow-Origin" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-integration" : {
+          "type" : "aws",
+          "httpMethod" : "POST",
+          "uri" : "arn:aws:apigateway:<REGION>:lambda:path/2015-03-31/functions/<DeleteDragon-LAMBDA-ARN>/invocations",
+          "responses" : {
+            "default" : {
+              "statusCode" : "200",
+              "responseParameters" : {
+                "method.response.header.Access-Control-Allow-Origin" : "'*'"
+              }
+            }
+          },
+          "passthroughBehavior" : "when_no_match",
+          "contentHandling" : "CONVERT_TO_TEXT"
+        }
+      },
+      "options" : {
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "schema" : {
+              "$ref" : "#/definitions/Empty"
+            },
+            "headers" : {
+              "Access-Control-Allow-Origin" : {
+                "type" : "string"
+              },
+              "Access-Control-Allow-Methods" : {
+                "type" : "string"
+              },
+              "Access-Control-Allow-Headers" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-integration" : {
+          "type" : "mock",
+          "responses" : {
+            "default" : {
+              "statusCode" : "200",
+              "responseParameters" : {
+                "method.response.header.Access-Control-Allow-Methods" : "'DELETE,GET,OPTIONS,PATCH,POST'",
+                "method.response.header.Access-Control-Allow-Headers" : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                "method.response.header.Access-Control-Allow-Origin" : "'*'"
+              }
+            }
+          },
+          "requestTemplates" : {
+            "application/json" : "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior" : "when_no_match"
+        }
+      },
+      "patch" : {
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "dragonPatch",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/dragonPatch"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "schema" : {
+              "$ref" : "#/definitions/Empty"
+            },
+            "headers" : {
+              "Access-Control-Allow-Origin" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-request-validator" : "Validate body",
+        "x-amazon-apigateway-integration" : {
+          "type" : "aws",
+          "credentials" : "<IAM-ROLE-ARN>",
+          "httpMethod" : "POST",
+          "uri" : "arn:aws:apigateway:<REGION>:states:action/StartExecution",
+          "responses" : {
+            "default" : {
+              "statusCode" : "200",
+              "responseParameters" : {
+                "method.response.header.Access-Control-Allow-Origin" : "'*'"
+              }
+            }
+          },
+          "requestTemplates" : {
+            "application/json" : "#set($data = $input.path('$'))\r\n\r\n#set($inputValues = \"{\r\n  \"\"oldName\"\": \"\"$data.oldName\"\",\r\n  \"\"name\"\" : \"\"$data.name\"\",\r\n  \"\"description\"\" : \"\"$data.description\"\",\r\n  \"\"family\"\" : \"\"$data.family\"\",\r\n  \"\"spottedCity\"\" : \"\"$data.spottedCity\"\",\r\n  \"\"spottedState\"\" : \"\"$data.spottedState\"\",\r\n  \"\"spottedNeighborhood\"\" : \"\"$data.spottedNeighborhood\"\"\r\n}\")\r\n\r\n{\r\n    \"input\": \"$util.escapeJavaScript($inputValues).replaceAll(\"\\\\'\", \"'\")\",\r\n    \"stateMachineArn\": \"<DragonsPatchStateMachine-STEP-FUNCTION-ARN>\"\r\n}"
+          },
+          "passthroughBehavior" : "when_no_templates"
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "Empty" : {
+      "type" : "object",
+      "title" : "Empty Schema"
+    },
+    "dragonPatch" : {
+      "type" : "object",
+      "properties" : {
+        "oldName" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "family" : {
+          "type" : "string"
+        },
+        "spottedCity" : {
+          "type" : "string"
+        },
+        "spottedState" : {
+          "type" : "string"
+        },
+        "spottedNeighborhood" : {
+          "type" : "string"
+        }
+      },
+      "title" : "DragonPatch"
+    },
+    "dragon" : {
+      "type" : "object",
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "family" : {
+          "type" : "string"
+        },
+        "spottedCity" : {
+          "type" : "string"
+        },
+        "spottedState" : {
+          "type" : "string"
+        },
+        "spottedNeighborhood" : {
+          "type" : "string"
+        }
+      },
+      "title" : "Dragon"
+    }
+  },
+  "x-amazon-apigateway-request-validators" : {
+    "Validate body" : {
+      "validateRequestParameters" : false,
+      "validateRequestBody" : true
+    }
+  }
+}

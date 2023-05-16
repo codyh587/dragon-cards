@@ -1,0 +1,52 @@
+{
+  "Comment": "Dragon will be validated. If validation fails, a failure message will be sent. If the dragon is valid, it will be added to the data and a success message will be sent.",
+  "StartAt": "ValidateDragon",
+  "States": {
+    "ValidateDragon": {
+      "Type": "Task",
+      "Resource": "<ValidateDragon-LAMBDA-ARN>",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "DragonValidationException"
+          ],
+          "Next": "AlertDragonValidationFailure",
+          "ResultPath": null
+        },
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "CatchAllFailure"
+        }
+      ],
+      "Next": "CreateDragon",
+      "ResultPath": null
+    },
+    "AlertDragonValidationFailure": {
+      "Type": "Fail",
+      "Cause": "ValidateDragon failed."
+    },
+    "CatchAllFailure": {
+      "Type": "Fail",
+      "Cause": "Something unknown went wrong."
+    },
+    "CreateDragon": {
+      "Type": "Task",
+      "Resource": "<CreateDragon-LAMBDA-ARN>",
+      "Next": "AlertCreateDragonSuccess",
+      "ResultPath": null,
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "CatchAllFailure"
+        }
+      ]
+    },
+    "AlertCreateDragonSuccess": {
+      "Type": "Succeed"
+    }
+  }
+}
