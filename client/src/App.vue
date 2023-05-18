@@ -7,7 +7,14 @@ import { RouterLink, RouterView } from 'vue-router'
         <div class="wrapper">
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
                 <div class="container-fluid">
-                    <RouterLink class="navbar-brand" to="/">Navbar</RouterLink>
+                    <b-navbar-brand>
+                        <svg class="logo" viewBox="0 0 128 128" width="28" height="28">
+                            <path fill="#42b883" d="M78.8,10L64,35.4L49.2,10H0l64,110l64-110C128,10,78.8,10,78.8,10z">
+                            </path>
+                            <path fill="#35495e" d="M78.8,10L64,35.4L49.2,10H25.6L64,76l38.4-66H78.8z">
+                            </path>
+                        </svg>
+                    </b-navbar-brand>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
                     </button>
@@ -16,11 +23,6 @@ import { RouterLink, RouterView } from 'vue-router'
                             <li class="nav-item">
                                 <RouterLink class="nav-link active" to="/">
                                     Home
-                                </RouterLink>
-                            </li>
-                            <li class="nav-item">
-                                <RouterLink class="nav-link" to="/about">
-                                    About Us
                                 </RouterLink>
                             </li>
                             <li class="nav-item">

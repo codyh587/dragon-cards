@@ -1,11 +1,11 @@
 {
   "swagger" : "2.0",
   "info" : {
-    "version" : "<VERSION>",
+    "version" : "2023-05-18T22:52:14Z",
     "title" : "DragonsApp"
   },
-  "host" : "<HOST-URL>",
-  "basePath" : "<STAGE-NAME>",
+  "host" : "dk16qv66nl.execute-api.<AWS-REGION>.amazonaws.com",
+  "basePath" : "/prod",
   "schemes" : [ "https" ],
   "paths" : {
     "/dragons" : {
@@ -24,10 +24,13 @@
             }
           }
         },
+        "security" : [ {
+          "DragonsTokenAuthorizer" : [ ]
+        } ],
         "x-amazon-apigateway-integration" : {
           "type" : "aws_proxy",
           "httpMethod" : "POST",
-          "uri" : "arn:aws:apigateway:<REGION>:lambda:path/2015-03-31/functions/<ReadDragon-LAMBDA-ARN>/invocations",
+          "uri" : "arn:aws:apigateway:<AWS-REGION>:lambda:path/2015-03-31/functions/arn:aws:lambda:<AWS-REGION>:<AWS-ACCOUNT-ID>:function:ReadDragon/invocations",
           "responses" : {
             "default" : {
               "statusCode" : "200",
@@ -64,12 +67,15 @@
             }
           }
         },
+        "security" : [ {
+          "DragonsTokenAuthorizer" : [ ]
+        } ],
         "x-amazon-apigateway-request-validator" : "Validate body",
         "x-amazon-apigateway-integration" : {
           "type" : "aws",
-          "credentials" : "<IAM-ROLE-ARN>",
+          "credentials" : "arn:aws:iam::<AWS-ACCOUNT-ID>:role/dragons-apig-role",
           "httpMethod" : "POST",
-          "uri" : "arn:aws:apigateway:<REGION>:states:action/StartExecution",
+          "uri" : "arn:aws:apigateway:<AWS-REGION>:states:action/StartExecution",
           "responses" : {
             "default" : {
               "statusCode" : "200",
@@ -79,7 +85,7 @@
             }
           },
           "requestTemplates" : {
-            "application/json" : "#set($data = $input.path('$'))\r\n\r\n#set($inputValues = \"{\r\n  \"\"name\"\" : \"\"$data.name\"\",\r\n  \"\"description\"\" : \"\"$data.description\"\",\r\n  \"\"family\"\" : \"\"$data.family\"\",\r\n  \"\"spottedCity\"\" : \"\"$data.spottedCity\"\",\r\n  \"\"spottedState\"\" : \"\"$data.spottedState\"\",\r\n  \"\"spottedNeighborhood\"\" : \"\"$data.spottedNeighborhood\"\"\r\n}\")\r\n\r\n{\r\n    \"input\": \"$util.escapeJavaScript($inputValues).replaceAll(\"\\\\'\", \"'\")\",\r\n    \"stateMachineArn\": \"<DragonsPostStateMachine-STEP-FUNCTION-ARN>\"\r\n}"
+            "application/json" : "#set($data = $input.path('$'))\r\n\r\n#set($inputValues = \"{\r\n  \"\"name\"\" : \"\"$data.name\"\",\r\n  \"\"description\"\" : \"\"$data.description\"\",\r\n  \"\"family\"\" : \"\"$data.family\"\",\r\n  \"\"spottedCity\"\" : \"\"$data.spottedCity\"\",\r\n  \"\"spottedState\"\" : \"\"$data.spottedState\"\",\r\n  \"\"spottedNeighborhood\"\" : \"\"$data.spottedNeighborhood\"\"\r\n}\")\r\n\r\n{\r\n    \"input\": \"$util.escapeJavaScript($inputValues).replaceAll(\"\\\\'\", \"'\")\",\r\n    \"stateMachineArn\": \"arn:aws:states:<AWS-REGION>:<AWS-ACCOUNT-ID>:stateMachine:DragonsPostStateMachine\"\r\n}"
           },
           "passthroughBehavior" : "when_no_templates"
         }
@@ -99,10 +105,13 @@
             }
           }
         },
+        "security" : [ {
+          "DragonsTokenAuthorizer" : [ ]
+        } ],
         "x-amazon-apigateway-integration" : {
           "type" : "aws",
           "httpMethod" : "POST",
-          "uri" : "arn:aws:apigateway:<REGION>:lambda:path/2015-03-31/functions/<DeleteDragon-LAMBDA-ARN>/invocations",
+          "uri" : "arn:aws:apigateway:<AWS-REGION>:lambda:path/2015-03-31/functions/arn:aws:lambda:<AWS-REGION>:<AWS-ACCOUNT-ID>:function:DeleteDragon/invocations",
           "responses" : {
             "default" : {
               "statusCode" : "200",
@@ -179,12 +188,15 @@
             }
           }
         },
+        "security" : [ {
+          "DragonsTokenAuthorizer" : [ ]
+        } ],
         "x-amazon-apigateway-request-validator" : "Validate body",
         "x-amazon-apigateway-integration" : {
           "type" : "aws",
-          "credentials" : "<IAM-ROLE-ARN>",
+          "credentials" : "arn:aws:iam::<AWS-ACCOUNT-ID>:role/dragons-apig-role",
           "httpMethod" : "POST",
-          "uri" : "arn:aws:apigateway:<REGION>:states:action/StartExecution",
+          "uri" : "arn:aws:apigateway:<AWS-REGION>:states:action/StartExecution",
           "responses" : {
             "default" : {
               "statusCode" : "200",
@@ -194,10 +206,153 @@
             }
           },
           "requestTemplates" : {
-            "application/json" : "#set($data = $input.path('$'))\r\n\r\n#set($inputValues = \"{\r\n  \"\"oldName\"\": \"\"$data.oldName\"\",\r\n  \"\"name\"\" : \"\"$data.name\"\",\r\n  \"\"description\"\" : \"\"$data.description\"\",\r\n  \"\"family\"\" : \"\"$data.family\"\",\r\n  \"\"spottedCity\"\" : \"\"$data.spottedCity\"\",\r\n  \"\"spottedState\"\" : \"\"$data.spottedState\"\",\r\n  \"\"spottedNeighborhood\"\" : \"\"$data.spottedNeighborhood\"\"\r\n}\")\r\n\r\n{\r\n    \"input\": \"$util.escapeJavaScript($inputValues).replaceAll(\"\\\\'\", \"'\")\",\r\n    \"stateMachineArn\": \"<DragonsPatchStateMachine-STEP-FUNCTION-ARN>\"\r\n}"
+            "application/json" : "#set($data = $input.path('$'))\r\n\r\n#set($inputValues = \"{\r\n  \"\"oldName\"\": \"\"$data.oldName\"\",\r\n  \"\"name\"\" : \"\"$data.name\"\",\r\n  \"\"description\"\" : \"\"$data.description\"\",\r\n  \"\"family\"\" : \"\"$data.family\"\",\r\n  \"\"spottedCity\"\" : \"\"$data.spottedCity\"\",\r\n  \"\"spottedState\"\" : \"\"$data.spottedState\"\",\r\n  \"\"spottedNeighborhood\"\" : \"\"$data.spottedNeighborhood\"\"\r\n}\")\r\n\r\n{\r\n    \"input\": \"$util.escapeJavaScript($inputValues).replaceAll(\"\\\\'\", \"'\")\",\r\n    \"stateMachineArn\": \"arn:aws:states:<AWS-REGION>:<AWS-ACCOUNT-ID>:stateMachine:DragonsPatchStateMachine\"\r\n}"
           },
           "passthroughBehavior" : "when_no_templates"
         }
+      }
+    },
+    "/login" : {
+      "post" : {
+        "produces" : [ "application/json" ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "schema" : {
+              "$ref" : "#/definitions/Empty"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration" : {
+          "type" : "aws_proxy",
+          "httpMethod" : "POST",
+          "uri" : "arn:aws:apigateway:<AWS-REGION>:lambda:path/2015-03-31/functions/arn:aws:lambda:<AWS-REGION>:<AWS-ACCOUNT-ID>:function:LoginHandler/invocations",
+          "responses" : {
+            "default" : {
+              "statusCode" : "200"
+            }
+          },
+          "passthroughBehavior" : "when_no_match",
+          "contentHandling" : "CONVERT_TO_TEXT"
+        }
+      },
+      "options" : {
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "schema" : {
+              "$ref" : "#/definitions/Empty"
+            },
+            "headers" : {
+              "Access-Control-Allow-Origin" : {
+                "type" : "string"
+              },
+              "Access-Control-Allow-Methods" : {
+                "type" : "string"
+              },
+              "Access-Control-Allow-Headers" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-integration" : {
+          "type" : "mock",
+          "responses" : {
+            "default" : {
+              "statusCode" : "200",
+              "responseParameters" : {
+                "method.response.header.Access-Control-Allow-Methods" : "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'",
+                "method.response.header.Access-Control-Allow-Headers" : "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'",
+                "method.response.header.Access-Control-Allow-Origin" : "'*'"
+              }
+            }
+          },
+          "requestTemplates" : {
+            "application/json" : "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior" : "when_no_match"
+        }
+      }
+    },
+    "/register" : {
+      "post" : {
+        "produces" : [ "application/json" ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "schema" : {
+              "$ref" : "#/definitions/Empty"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration" : {
+          "type" : "aws_proxy",
+          "httpMethod" : "POST",
+          "uri" : "arn:aws:apigateway:<AWS-REGION>:lambda:path/2015-03-31/functions/arn:aws:lambda:<AWS-REGION>:<AWS-ACCOUNT-ID>:function:LoginHandler/invocations",
+          "responses" : {
+            "default" : {
+              "statusCode" : "200"
+            }
+          },
+          "passthroughBehavior" : "when_no_match",
+          "contentHandling" : "CONVERT_TO_TEXT"
+        }
+      },
+      "options" : {
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "schema" : {
+              "$ref" : "#/definitions/Empty"
+            },
+            "headers" : {
+              "Access-Control-Allow-Origin" : {
+                "type" : "string"
+              },
+              "Access-Control-Allow-Methods" : {
+                "type" : "string"
+              },
+              "Access-Control-Allow-Headers" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-integration" : {
+          "type" : "mock",
+          "responses" : {
+            "default" : {
+              "statusCode" : "200",
+              "responseParameters" : {
+                "method.response.header.Access-Control-Allow-Methods" : "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'",
+                "method.response.header.Access-Control-Allow-Headers" : "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'",
+                "method.response.header.Access-Control-Allow-Origin" : "'*'"
+              }
+            }
+          },
+          "requestTemplates" : {
+            "application/json" : "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior" : "when_no_match"
+        }
+      }
+    }
+  },
+  "securityDefinitions" : {
+    "DragonsTokenAuthorizer" : {
+      "type" : "apiKey",
+      "name" : "token",
+      "in" : "header",
+      "x-amazon-apigateway-authtype" : "custom",
+      "x-amazon-apigateway-authorizer" : {
+        "type" : "token",
+        "authorizerUri" : "arn:aws:apigateway:<AWS-REGION>:lambda:path/2015-03-31/functions/arn:aws:lambda:<AWS-REGION>:<AWS-ACCOUNT-ID>:function:VerifySession/invocations",
+        "authorizerResultTtlInSeconds" : 0
       }
     }
   },

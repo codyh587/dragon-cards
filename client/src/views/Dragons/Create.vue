@@ -1,8 +1,8 @@
 <template>
-    <div class="container mt-5">
+    <div class="container my-5">
         <div class="card">
             <div class="card-header">
-                <h4>Create Dragon</h4>
+                <h4 class="mt-1">Create Dragon</h4>
             </div>
             <div class="card-body">
                 <ul class="alert alert-warning" v-if="Object.keys(this.errorList).length > 0">
@@ -35,7 +35,12 @@
                     <input type="text" v-model="model.dragon.spottedState" class="form-control" />
                 </div>
                 <div class="mb-3">
-                    <button type="button" @click="saveDragon" class="btn btn-primary">Save</button>
+                    <button type="button" @click="saveDragon" class="btn btn-primary">
+                        Save
+                    </button>
+                    <RouterLink to="/dragons/" class="btn btn-secondary ms-2">
+                        Back
+                    </RouterLink>
                 </div>
             </div>
         </div>
@@ -50,7 +55,7 @@ export default {
 
     data() {
         return {
-            errorList: [],
+            errorList: Array<string>,
 
             model: {
                 dragon: {
@@ -66,7 +71,7 @@ export default {
     },
 
     methods: {
-        saveDragon() {
+        saveDragon(): void {
             this.errorList = [];
             console.log(this.model.dragon);
 
@@ -95,9 +100,11 @@ export default {
                             console.log(err.response.data)
                             console.log(err.response.status)
                             console.log(err.response.headers)
-                        } else if (err.request) {
+                        }
+                        else if (err.request) {
                             console.log(err.request)
-                        } else {
+                        }
+                        else {
                             console.log('Error', err.message)
                         }
                     });

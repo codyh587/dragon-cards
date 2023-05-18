@@ -1,8 +1,8 @@
 <template>
-    <div class="container mt-5">
+    <div class="container my-5">
         <div class="card">
             <div class="card-header">
-                <h4>Edit Dragon</h4>
+                <h4 class="mt-1">Edit Dragon</h4>
             </div>
             <div class="card-body">
                 <ul class="alert alert-warning" v-if="Object.keys(this.errorList).length > 0">
@@ -35,7 +35,12 @@
                     <input type="text" v-model="model.dragon.spottedState" class="form-control" />
                 </div>
                 <div class="mb-3">
-                    <button type="button" @click="editDragon" class="btn btn-primary">Save</button>
+                    <button type="button" @click="editDragon" class="btn btn-primary">
+                        Update
+                    </button>
+                    <RouterLink to="/dragons" class="btn btn-secondary ms-2">
+                        Back
+                    </RouterLink>
                 </div>
             </div>
         </div>
@@ -50,7 +55,7 @@ export default {
 
     data() {
         return {
-            errorList: [],
+            errorList: Array<string>,
 
             model: {
                 dragon: {
@@ -67,12 +72,12 @@ export default {
     },
 
     methods: {
-        editDragon() {
+        editDragon(): void {
             this.errorList = [];
             console.log(this.model.dragon);
 
             if (this.model.dragon.name === '') {
-                    this.errorList.push('"name" is required');
+                this.errorList.push('"name" is required');
             }
 
             if (this.errorList.length == 0) {
@@ -81,6 +86,7 @@ export default {
                         console.log(res)
 
                         this.model.dragon = {
+                            oldName: this.$route.params.name,
                             name: '',
                             description: '',
                             family: '',
@@ -89,14 +95,15 @@ export default {
                             spottedState: ''
                         }
                     })
-                    .catch(function (err) {
+                    .catch(function(err) {
                         if (err.response) {
                             console.log(err.response.data)
-                            console.log(err.response.status)
                             console.log(err.response.headers)
-                        } else if (err.request) {
+                        }
+                        else if (err.request) {
                             console.log(err.request)
-                        } else {
+                        }
+                        else {
                             console.log('Error', err.message)
                         }
                     });

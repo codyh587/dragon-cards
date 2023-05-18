@@ -4,7 +4,7 @@
   "States": {
     "ValidateDragon": {
       "Type": "Task",
-      "Resource": "<ValidateDragon-LAMBDA-ARN>",
+      "Resource": "arn:aws:lambda:<AWS-REGION>:<AWS-ACCOUNT-ID>:function:ValidateDragon",
       "Catch": [
         {
           "ErrorEquals": [
@@ -33,7 +33,7 @@
     },
     "UpdateDragon": {
       "Type": "Task",
-      "Resource": "<UpdateDragon-LAMBDA-ARN>",
+      "Resource": "arn:aws:lambda:<AWS-REGION>:<AWS-ACCOUNT-ID>:function:UpdateDragon",
       "Next": "AlertUpdateDragonSuccess",
       "ResultPath": null,
       "Catch": [
