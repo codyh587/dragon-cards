@@ -84,6 +84,13 @@ export default {
             if (this.errorList.length == 0) {
                 axios.post('API_URL/dragons', this.model.dragon)
                     .then(res => {
+                        let message: string = res.body.message
+
+                        if (message === 'Unauthorized' || message.includes('deny')) {
+                            this.$store.dispatch('expired')
+                            return
+                        }
+
                         console.log(res)
 
                         this.model.dragon = {

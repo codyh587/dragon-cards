@@ -73,6 +73,13 @@ export default {
         getDragons(): void {
             // TODO replace mock API Endpoint
             axios.get('https://de5613ea-edb7-47c8-97b1-6e852c155697.mock.pstmn.io/dragons').then(res => {
+                let message: string = res.body.message
+
+                if (message === 'Unauthorized' || message.includes('deny')) {
+                    this.$store.dispatch('expired')
+                    return
+                }
+
                 this.dragons = res.body
                 console.log(this.dragons)
             });
@@ -84,6 +91,13 @@ export default {
                 let payload: { name: string; } = { name: dragonName };
                 axios.delete('APIURL/dragons', payload)
                     .then(res => {
+                        let message: string = res.body.message
+
+                        if (message === 'Unauthorized' || message.includes('deny')) {
+                            this.$store.dispatch('expired')
+                            return
+                        }
+
                         console.log(res)
                         this.getDragons()
                     })
