@@ -22,9 +22,9 @@
                             </svg>
                         </button>
                         <button class="btn btn-outline-secondary ms-2" @click="getDragons()" type="button">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bootstrap-reboot" viewBox="0 0 16 16">
-                                <path d="M1.161 8a6.84 6.84 0 1 0 6.842-6.84.58.58 0 1 1 0-1.16 8 8 0 1 1-6.556 3.412l-.663-.577a.58.58 0 0 1 .227-.997l2.52-.69a.58.58 0 0 1 .728.633l-.332 2.592a.58.58 0 0 1-.956.364l-.643-.56A6.812 6.812 0 0 0 1.16 8z"/>
-                                <path d="M6.641 11.671V8.843h1.57l1.498 2.828h1.314L9.377 8.665c.897-.3 1.427-1.106 1.427-2.1 0-1.37-.943-2.246-2.456-2.246H5.5v7.352h1.141zm0-3.75V5.277h1.57c.881 0 1.416.499 1.416 1.32 0 .84-.504 1.324-1.386 1.324h-1.6z"/>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bootstrap-reboot mb-1" viewBox="0 0 16 16">
+                                <path d="M1.161 8a6.84 6.84 0 1 0 6.842-6.84.58.58 0 1 1 0-1.16 8 8 0 1 1-6.556 3.412l-.663-.577a.58.58 0 0 1 .227-.997l2.52-.69a.58.58 0 0 1 .728.633l-.332 2.592a.58.58 0 0 1-.956.364l-.643-.56A6.812 6.812 0 0 0 1.16 8z" />
+                                <path d="M6.641 11.671V8.843h1.57l1.498 2.828h1.314L9.377 8.665c.897-.3 1.427-1.106 1.427-2.1 0-1.37-.943-2.246-2.456-2.246H5.5v7.352h1.141zm0-3.75V5.277h1.57c.881 0 1.416.499 1.416 1.32 0 .84-.504 1.324-1.386 1.324h-1.6z" />
                             </svg>
                         </button>
                     </div>
@@ -49,11 +49,11 @@
                             <td>{{ dragon.spottedCity }}</td>
                             <td>{{ dragon.spottedNeighborhood }}</td>
                             <td>{{ dragon.spottedState }}</td>
-                            <td class="align-middle btn-group w-100">
-                                <button type="button" @click="" class="btn btn-primary my-1">
+                            <td class="btn-group btn-group-sm border-0">
+                                <button type="button" @click="openPopup(dragon)" class="btn btn-success my-1">
                                     View
                                 </button>
-                                <RouterLink :to="{ path: '/dragons/edit/' + dragon.name }" class="btn btn-success my-1">
+                                <RouterLink :to="{ path: '/dragons/edit/' + dragon.name }" class="btn btn-secondary my-1">
                                     Edit
                                 </RouterLink>
                                 <button type="button" @click="deleteDragon(dragon.name)" class="btn btn-danger my-1">
@@ -72,84 +72,101 @@
                 </table>
             </div>
         </div>
+        <Popup :card="selectedCard" :isOpen="isPopupOpen" @closePopup="closePopup" />
     </div>
 </template>
 
 <script lang="ts">
-    import axios from 'axios'
+import axios from 'axios'
+import Popup from './Popup.vue';
 
-    interface Dragon {
-        name: string;
-        description: string;
-        family: string;
-        spottedCity: string;
-        spottedNeighborhood: string;
-        spottedState: string
-    }
+interface Dragon {
+    name: string;
+    description: string;
+    family: string;
+    spottedCity: string;
+    spottedNeighborhood: string;
+    spottedState: string
+}
 
-    export default {
-        name: 'dragons',
+export default {
+    name: 'dragons',
 
-        data() {
-            return {
-                dragons: Array < Dragon > ,
-                button: 'name',
+    data() {
+        return {
+            dragons: Array < Dragon > ,
+            button: 'name',
+            selectedCard: {},
+            isPopupOpen: false,
 
-                model: {
-                    search: ''
-                }
+            model: {
+                search: ''
             }
+        }
+    },
+
+    mounted() {
+        this.getDragons(null);
+    },
+
+    methods: {
+        getDragons(query: boolean): void {
+            const pointer = this;
+            let params = {}
+            if (query) {
+                params[this.button] = this.model.search
+            }
+
+            axios.get('/dragons', { params: params })
+                .then(res => {
+                    console.log(res)
+                    this.dragons = res.data
+                })
+                .catch(function(err) {
+                    console.log(err)
+                    pointer.$store.dispatch('expired')
+                });
         },
 
-        mounted() {
-            this.getDragons(null);
-        },
+        deleteDragon(dragonName: string): void {
+            const pointer = this;
+            if (confirm('Are you sure you want to delete this entry for ' + dragonName + '?')) {
+                console.log(dragonName);
 
-        methods: {
-            getDragons(query: boolean): void {
-                const pointer = this;
-                let params = {}
-                if (query) {
-                    params[this.button] = this.model.search
-                }
-
-                axios.get('/dragons', { params: params })
+                axios.delete('/dragons', { data: { name: dragonName } })
                     .then(res => {
                         console.log(res)
-                        this.dragons = res.data
+                        setTimeout(null, 1000)
+                        this.getDragons(null)
                     })
                     .catch(function(err) {
                         console.log(err)
                         pointer.$store.dispatch('expired')
                     });
-            },
-
-            deleteDragon(dragonName: string): void {
-                const pointer = this;
-                if (confirm('Are you sure you want to delete this entry for ' + dragonName + '?')) {
-                    console.log(dragonName);
-
-                    axios.delete('/dragons', { data: { name: dragonName } })
-                        .then(res => {
-                            console.log(res)
-                            setTimeout(null, 1000)
-                            this.getDragons(null)
-                        })
-                        .catch(function(err) {
-                            console.log(err)
-                            pointer.$store.dispatch('expired')
-                        });
-                }
-            },
-
-            switchSearchButton(): void {
-                if (this.button === 'name') {
-                    this.button = 'family'
-                }
-                else {
-                    this.button = 'name'
-                }
             }
         },
+
+        switchSearchButton(): void {
+            if (this.button === 'name') {
+                this.button = 'family'
+            }
+            else {
+                this.button = 'name'
+            }
+        },
+
+        openPopup(dragon: Dragon) {
+            this.selectedCard = dragon
+            this.isPopupOpen = true
+        },
+
+        closePopup() {
+            this.isPopupOpen = false
+        }
+    },
+
+    components: {
+        Popup
     }
+}
 </script>
