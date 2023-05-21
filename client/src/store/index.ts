@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { createStore } from 'vuex'
 
 interface storeState {
@@ -39,6 +40,7 @@ const store = createStore({
 
         SET_TOKEN(state, token: string) {
             state.token = token
+            axios.defaults.headers.common['token'] = store.getters.token
         },
 
         SET_SESSIONEXPIRED(state, sessionExpired: boolean) {

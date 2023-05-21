@@ -1,5 +1,10 @@
 # dragon-cards
 
+## .env variables
+```
+VITE_API_ENDPOINT=API Endpoint for DragonsApp API
+```
+
 This template should help get you started developing with Vue 3 in Vite.
 
 ## Recommended IDE Setup

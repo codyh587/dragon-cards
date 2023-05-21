@@ -34,14 +34,12 @@
                     <label for="">State Spotted</label>
                     <input type="text" v-model="model.dragon.spottedState" class="form-control" />
                 </div>
-                <div class="mb-3">
-                    <button type="button" @click="saveDragon" class="btn btn-primary">
-                        Save
-                    </button>
-                    <RouterLink to="/dragons/" class="btn btn-secondary ms-2">
-                        Back
-                    </RouterLink>
-                </div>
+                <button type="button" @click="saveDragon" class="btn btn-primary">
+                    Save
+                </button>
+                <RouterLink to="/dragons/" class="btn btn-secondary ms-2">
+                    Back
+                </RouterLink>
             </div>
         </div>
     </div>
@@ -72,6 +70,7 @@ export default {
 
     methods: {
         saveDragon(): void {
+            const pointer = this;
             this.errorList = [];
             console.log(this.model.dragon);
 
@@ -82,15 +81,8 @@ export default {
             }
 
             if (this.errorList.length == 0) {
-                axios.post('API_URL/dragons', this.model.dragon)
+                axios.post('/dragons', this.model.dragon)
                     .then(res => {
-                        let message: string = res.body.message
-
-                        if (message === 'Unauthorized' || message.includes('deny')) {
-                            this.$store.dispatch('expired')
-                            return
-                        }
-
                         console.log(res)
 
                         this.model.dragon = {
@@ -101,19 +93,13 @@ export default {
                             spottedNeighborhood: '',
                             spottedState: ''
                         }
+
+                        setTimeout(null, 1000)
+                        this.$router.push('/dragons')
                     })
                     .catch(function (err) {
-                        if (err.response) {
-                            console.log(err.response.data)
-                            console.log(err.response.status)
-                            console.log(err.response.headers)
-                        }
-                        else if (err.request) {
-                            console.log(err.request)
-                        }
-                        else {
-                            console.log('Error', err.message)
-                        }
+                        console.log(err)
+                        pointer.$store.dispatch('expired')
                     });
             }
         }
