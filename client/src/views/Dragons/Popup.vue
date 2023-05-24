@@ -34,11 +34,15 @@
 
 <script lang="ts">
 import html2canvas from 'html2canvas'
+import { defineComponent, PropType } from 'vue'
+import { Dragon } from '../../types/DragonCards.interface'
 
-export default {
+export default defineComponent({
+    name: 'popupView',
+
     props: {
         card: {
-            type: Object,
+            type: Object as PropType<Dragon>,
             required: true
         },
 
@@ -55,26 +59,26 @@ export default {
     },
 
     methods: {
-        closePopup() {
+        closePopup(): void {
             this.$emit('closePopup');
         },
 
-        generateCardImage() {
-            html2canvas(this.$refs.card, { height: 510 }).then(canvas => {
+        generateCardImage(): void {
+            html2canvas(this.$refs.card as HTMLElement, { height: 510 }).then(canvas => {
                 this.cardImage = canvas.toDataURL('image/png')
                 console.log(this.cardImage)
 
-                const link = document.createElement('a');
-                link.href = this.cardImage;
-                link.download = 'trading_card.png';
-                link.click();
+                const link = document.createElement('a')
+                link.href = this.cardImage
+                link.download = 'trading_card.png'
+                link.click()
             });
         }
     }
-}
+});
 </script>
 
-<style>
+<style scoped>
 .popup-container {
     position: fixed;
     top: 0;
@@ -95,7 +99,7 @@ export default {
 }
 
 .ratio {
-    background-image: url('../../src/assets/dragon.png');
+    background-image: url('@/assets/dragon.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;

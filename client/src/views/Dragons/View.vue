@@ -4,9 +4,9 @@
             <div class="card-header">
                 <h4 class="mt-1">
                     Dragons
-                    <RouterLink to="/dragons/create" class="btn btn-primary float-end">
+                    <router-link to="/dragons/create" class="btn btn-primary float-end">
                         Create Dragon
-                    </RouterLink>
+                    </router-link>
                 </h4>
             </div>
             <div class="card-body">
@@ -14,7 +14,7 @@
                     <div class="input-group-prepend">
                         <button class="input-group-text dropdown-toggle" @click="switchSearchButton">{{ button }}</button>
                     </div>
-                    <input type="text" v-model="model.search" class="form-control" placeholder="Search">
+                    <input type="text" v-model="search" class="form-control" placeholder="Search">
                     <div class="input-group-append">
                         <button class="btn btn-outline-secondary" @click="getDragons(true)" type="button">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search mb-1" viewBox="0 0 16 16">
@@ -53,9 +53,9 @@
                                 <button type="button" @click="openPopup(dragon)" class="btn btn-success my-1">
                                     View
                                 </button>
-                                <RouterLink :to="{ path: '/dragons/edit/' + dragon.name }" class="btn btn-secondary my-1">
+                                <router-link :to="{ path: '/dragons/edit/' + dragon.name }" class="btn btn-secondary my-1">
                                     Edit
-                                </RouterLink>
+                                </router-link>
                                 <button type="button" @click="deleteDragon(dragon.name)" class="btn btn-danger my-1">
                                     Delete
                                 </button>
@@ -78,95 +78,85 @@
 
 <script lang="ts">
 import axios from 'axios'
-import Popup from './Popup.vue';
+import { defineComponent } from 'vue'
+import { Dragon, Search } from '../../types/DragonCards.interface'
+import Popup from './Popup.vue'
 
-interface Dragon {
-    name: string;
-    description: string;
-    family: string;
-    spottedCity: string;
-    spottedNeighborhood: string;
-    spottedState: string
-}
-
-export default {
-    name: 'dragons',
+export default defineComponent({
+    name: 'dragonsView',
 
     data() {
         return {
-            dragons: Array < Dragon > ,
             button: 'name',
-            selectedCard: {},
+            search: '',
             isPopupOpen: false,
-
-            model: {
-                search: ''
-            }
+            dragons: [] as Dragon[],
+            selectedCard: {} as Dragon
         }
     },
 
     mounted() {
-        this.getDragons(null);
+        this.getDragons(false);
     },
 
     methods: {
         getDragons(query: boolean): void {
-            const pointer = this;
-            let params = {}
-            if (query) {
-                params[this.button] = this.model.search
-            }
+            let params: Search = {};
+            if (query) { params[this.button as keyof Search] = this.search; }
 
             axios.get('/dragons', { params: params })
                 .then(res => {
                     console.log(res)
                     this.dragons = res.data
                 })
-                .catch(function(err) {
+                .catch(err => {
                     console.log(err)
-                    pointer.$store.dispatch('expired')
+                    if (this.$store.getters.token) {
+                        this.$store.dispatch('expired')
+                    }
                 });
         },
 
         deleteDragon(dragonName: string): void {
-            const pointer = this;
             if (confirm('Are you sure you want to delete this entry for ' + dragonName + '?')) {
                 console.log(dragonName);
 
                 axios.delete('/dragons', { data: { name: dragonName } })
                     .then(res => {
                         console.log(res)
-                        setTimeout(null, 1000)
-                        this.getDragons(null)
+                        setTimeout(() => '', 1000)
+                        this.getDragons(false)
                     })
-                    .catch(function(err) {
+                    .catch(err => {
                         console.log(err)
-                        pointer.$store.dispatch('expired')
+                        if (this.$store.getters.token) {
+                            this.$store.dispatch('expired')
+                        }
                     });
             }
         },
 
         switchSearchButton(): void {
             if (this.button === 'name') {
-                this.button = 'family'
+                this.button = 'family';
             }
             else {
-                this.button = 'name'
+                this.button = 'name';
             }
         },
 
-        openPopup(dragon: Dragon) {
-            this.selectedCard = dragon
-            this.isPopupOpen = true
+        openPopup(dragon: Dragon): void {
+            this.selectedCard = dragon;
+            this.isPopupOpen = true;
         },
 
-        closePopup() {
-            this.isPopupOpen = false
+        closePopup(): void {
+            this.isPopupOpen = false;
         }
     },
 
     components: {
         Popup
     }
-}
+});
 </script>

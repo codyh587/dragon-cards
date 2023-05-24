@@ -1,31 +1,28 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import DragonView from '../views/Dragons/View.vue'
-import DragonCreate from '../views/Dragons/Create.vue'
-import DragonEdit from '../views/Dragons/Edit.vue'
+import HomeView from '@/views/Home.vue'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(process.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'home',
+      name: 'homeView',
       component: HomeView
     },
     {
       path: '/dragons',
       name: 'dragons',
-      component: DragonView
+      component: () => import(/* webpackChunkName: "view" */ '@/views/Dragons/View.vue')
     },
     {
       path: '/dragons/create',
       name: 'dragonsCreate',
-      component: DragonCreate
+      component: () => import(/* webpackChunkName: "create" */ '@/views/Dragons/Create.vue')
     },
     {
       path: '/dragons/edit/:name',
       name: 'dragonsEdit',
-      component: DragonEdit
+      component: () => import(/* webpackChunkName: "edit" */ '@/views/Dragons/Edit.vue')
     },
   ]
 })

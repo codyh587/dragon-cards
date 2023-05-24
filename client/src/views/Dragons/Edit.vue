@@ -12,34 +12,34 @@
                 </ul>
                 <div class="mb-3">
                     <label for="">Name</label>
-                    <input type="text" v-model="model.dragon.name" class="form-control" />
+                    <input type="text" v-model="dragon.name" class="form-control" />
                 </div>
                 <div class="mb-3">
                     <label for="">Description</label>
-                    <input type="text" v-model="model.dragon.description" class="form-control" />
+                    <input type="text" v-model="dragon.description" class="form-control" />
                 </div>
                 <div class="mb-3">
                     <label for="">Family</label>
-                    <input type="text" v-model="model.dragon.family" class="form-control" />
+                    <input type="text" v-model="dragon.family" class="form-control" />
                 </div>
                 <div class="mb-3">
                     <label for="">City Spotted</label>
-                    <input type="text" v-model="model.dragon.spottedCity" class="form-control" />
+                    <input type="text" v-model="dragon.spottedCity" class="form-control" />
                 </div>
                 <div class="mb-3">
                     <label for="">Neighborhood Spotted</label>
-                    <input type="text" v-model="model.dragon.spottedNeighborhood" class="form-control" />
+                    <input type="text" v-model="dragon.spottedNeighborhood" class="form-control" />
                 </div>
                 <div class="mb-3">
                     <label for="">State Spotted</label>
-                    <input type="text" v-model="model.dragon.spottedState" class="form-control" />
+                    <input type="text" v-model="dragon.spottedState" class="form-control" />
                 </div>
                 <button type="button" @click="editDragon" class="btn btn-primary">
                     Update
                 </button>
-                <RouterLink to="/dragons" class="btn btn-secondary ms-2">
+                <router-link to="/dragons" class="btn btn-secondary ms-2">
                     Back
-                </RouterLink>
+                </router-link>
             </div>
         </div>
     </div>
@@ -47,45 +47,37 @@
 
 <script lang="ts">
 import axios from 'axios'
+import { defineComponent } from 'vue'
+import { EditDragon } from '../../types/DragonCards.interface'
 
-export default {
+export default defineComponent({
     name: 'dragonsEdit',
 
     data() {
         return {
-            errorList: Array<string>,
-
-            model: {
-                dragon: {
-                    oldName: this.$route.params.name,
-                    name: '',
-                    description: '',
-                    family: '',
-                    spottedCity: '',
-                    spottedNeighborhood: '',
-                    spottedState: ''
-                }
-            }
+            errorList: [] as string[],
+            dragon: {
+                oldName: this.$route.params.name
+            } as EditDragon
         }
     },
 
     methods: {
         editDragon(): void {
-            const pointer = this;
             this.errorList = [];
-            console.log(this.model.dragon);
+            console.log(this.dragon);
 
-            if (this.model.dragon.name === '') {
+            if (!this.dragon.name) {
                 this.errorList.push('"name" is required');
             }
 
             if (this.errorList.length == 0) {
-                axios.patch('/dragons', this.model.dragon)
+                axios.patch('/dragons', this.dragon)
                     .then(res => {
                         console.log(res)
 
-                        this.model.dragon = {
-                            oldName: this.$route.params.name,
+                        this.dragon = {
+                            ...this.dragon,
                             name: '',
                             description: '',
                             family: '',
@@ -94,15 +86,17 @@ export default {
                             spottedState: ''
                         }
 
-                        setTimeout(null, 1000)
+                        setTimeout(() => '', 1000)
                         this.$router.push('/dragons')
                     })
-                    .catch(function(err) {
+                    .catch(err => {
                         console.log(err)
-                        pointer.$store.dispatch('expired')
+                        if (this.$store.getters.token) {
+                            this.$store.dispatch('expired')
+                        }
                     });
             }
         }
     }
-}
+});
 </script>

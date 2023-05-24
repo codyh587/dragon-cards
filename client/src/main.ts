@@ -5,14 +5,6 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
-axios.defaults.baseURL = import.meta.env.VITE_API_ENDPOINT
+axios.defaults.baseURL = process.env.VUE_APP_API_ENDPOINT
 
-const app = createApp(App)
-
-app.config.devtools = true
-
-app.use(router)
-
-app.use(store)
-
-app.mount('#app')
+createApp(App).use(store).use(router).mount('#app')

@@ -6,30 +6,30 @@
         <div class="alert alert-danger" v-if="this.registerError" role="alert">
             Registration failed: username already exists.
         </div>
-        <div class="alert alert-danger" v-if="this.loginError" role="alert">
+        <div class="alert alert-danger" v-if="loginError" role="alert">
             Login failed. Please try again.
         </div>
-        <div class="container my-5 w-50" v-if="this.$store.getters.token">
-            <h1>Welcome, {{ this.$store.getters.username }}!</h1>
+        <div class="container my-5 w-50" v-if="$store.getters.token">
+            <h1>Welcome, {{ $store.getters.username }}!</h1>
         </div>
         <div class="container my-5 w-50">
             <div class="card">
                 <div class="card-header">
                     <h4 class="mt-1">Log In</h4>
                 </div>
-                <div class="card-body" v-if="!this.$store.getters.token || this.$store.getters.sessionExpired">
-                    <ul class="alert alert-warning" v-if="Object.keys(this.errorList).length > 0">
-                        <li class="m-b0 ms-3" v-for="(err, index) in this.errorList" :key="index">
+                <div class="card-body" v-if="!$store.getters.token || $store.getters.sessionExpired">
+                    <ul class="alert alert-warning" v-if="Object.keys(errorList).length > 0">
+                        <li class="m-b0 ms-3" v-for="(err, index) in errorList" :key="index">
                             {{ err }}
                         </li>
                     </ul>
                     <div class="mb-3">
                         <label for="">Username</label>
-                        <input type="text" v-model="model.user.username" class="form-control" />
+                        <input type="text" v-model="user.username" class="form-control" />
                     </div>
                     <div class="mb-3">
                         <label for="">Password</label>
-                        <input type="password" v-model="model.user.password" class="form-control" />
+                        <input type="password" v-model="user.password" class="form-control" />
                     </div>
                     <button type="button" @click="login" class="btn btn-primary">
                         Login
@@ -50,88 +50,82 @@
 
 <script lang="ts">
 import axios from 'axios'
+import { defineComponent } from 'vue'
+import { loginForm, userData } from '../types/DragonCards.interface'
 
-export default {
-    name: 'home',
+export default defineComponent({
+    name: 'homeView',
 
     data() {
         return {
             registerError: false,
             registerSuccess: false,
             loginError: false,
-            errorList: Array<str>,
-
-            model: {
-                user: {
-                    username: '',
-                    password: ''
-                }
-            }
+            errorList: [] as string[],
+            user: {} as loginForm
         }
     },
 
     methods: {
         login(): void {
-            if(this.checkForm()) { return }
-            const pointer = this
+            if (this.checkForm()) { return; }
 
-            axios.post('/login', this.model.user)
+            axios.post('/login', this.user)
                 .then(res => {
                     console.log(res)
-                    let sessionInfo = {
+                    let sessionInfo: userData = {
                         username: res.data.user.username,
                         token: res.data.token
                     }
-
                     this.$store.dispatch('login', sessionInfo)
                 })
-                .catch(function (err) {
+                .catch(err => {
                     console.log(err)
-                    pointer.loginError = true
+                    this.loginError = true
                 });
         },
 
         register(): void {
-            if(this.checkForm()) { return }
-            const pointer = this
+            if (this.checkForm()) { return; }
 
-            axios.post('/register', this.model.user)
+            axios.post('/register', this.user)
                 .then(res => {
                     console.log(res)
                     this.registerSuccess = true
                 })
-                .catch(function (err) {
+                .catch(err => {
                     console.log(err)
-                    pointer.registerError = true
+                    this.registerError = true
                 });
         },
 
         logout(): void {
-            this.$store.dispatch('logout')
-            this.model.user = {
-                username: "",
-                password: ""
-            }
+            this.$store.dispatch('logout');
+            this.user = {
+                username: '',
+                password: ''
+            };
         },
 
         checkForm(): boolean {
-            this.registerSuccess = false
-            this.registerError = false
-            this.loginError = false
-            this.errorList = []
+            this.registerSuccess = false;
+            this.registerError = false;
+            this.loginError = false;
+            this.errorList = [];
 
-            console.log(this.model.user)
-            let error: boolean = false
+            console.log(this.user);
+            let error = false;
 
-            for (const att in this.model.user) {
-                if (this.model.user[att] === '') {
+            let att: keyof typeof this.user;
+            for (att in this.user) {
+                if (!this.user[att]) {
                     this.errorList.push('"' + att + '" is required');
-                    error = true
+                    error = true;
                 }
             }
 
-            return error
+            return error;
         }
     }
-}
+});
 </script>
