@@ -18,12 +18,12 @@ Built using:
 
 ### Application Architecture
 
-> ![architecture-diagram](https://github.com/codyh587/dragon-cards/assets/108317527/dd023514-7fa3-4b99-a913-9f17c7372d62)
+> ![architecture-diagram](https://github.com/codyh587/dragon-cards/assets/108317527/45b992ef-93eb-463e-9359-98c332cabb29)
 
 ### Application Screenshots
 
-> ![login](https://github.com/codyh587/dragon-cards/assets/108317527/44d597a4-7978-497a-98e6-9795278ebcad)
+> ![login](https://github.com/codyh587/dragon-cards/assets/108317527/39aa88f2-2553-4c4b-ae34-ebf1a195c3c9)
 
-> ![login-required](https://github.com/codyh587/dragon-cards/assets/108317527/51c98a9c-1e9e-43eb-b862-77f2695eb936)
+> ![login-required](https://github.com/codyh587/dragon-cards/assets/108317527/3a1ddbf3-2819-4a2c-a7e9-9df850b79c72)
 
-> ![dragon-card](https://github.com/codyh587/dragon-cards/assets/108317527/96a05340-040a-4129-bc7c-488826bec424)
+> ![dragon-card](https://github.com/codyh587/dragon-cards/assets/108317527/c294a893-fa86-4c0f-a331-9970e712128c)
